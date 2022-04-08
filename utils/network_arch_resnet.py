@@ -51,7 +51,7 @@ class ResnetEncoder(nn.Module):
         # check hyperparameter tuning
         # diff latent dimension
         self.tmd_layer  = TMDLayer(
-            in_features = 28*28,
+            in_features = 512,
             L_latent = 16,  
             epsilon = 0.25
         )
@@ -106,6 +106,6 @@ class ResnetEncoder(nn.Module):
         x = x.view(n,c,h,w)
 
         x = self.encoder.fc(self.x)
-        
+
         return x
     

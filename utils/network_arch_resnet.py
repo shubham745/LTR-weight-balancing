@@ -12,6 +12,7 @@ import os, math
 from torch.utils.data import Dataset, DataLoader
 import torch.nn as nn
 import torch.nn.functional as F
+from tmd_layer import TMDLayer
 
 
 class ResnetEncoder(nn.Module):
@@ -46,6 +47,14 @@ class ResnetEncoder(nn.Module):
                 num_layers))
 
         self.encoder = resnets[num_layers]()
+
+        # check hyperparameter tuning
+        # diff latent dimension
+        self.tmd_layer  = TMDLayer(
+            in_features = 28*28,
+            L_latent = 16,  
+            epsilon = 0.25
+        )
         
         if self.isPretrained:
             print("using pretrained model")
@@ -89,8 +98,14 @@ class ResnetEncoder(nn.Module):
         
         x = F.avg_pool2d(x, self.poolSize)
         self.x = x.view(x.size(0), -1)
-        
+
+        n,c,h,w = x.shape
+
+        x = x.view(1,n,-1)
+        x = self.tmd_layer(x)
+        x = x.view(n,c,h,w)
+
         x = self.encoder.fc(self.x)
+        
         return x
-    
     

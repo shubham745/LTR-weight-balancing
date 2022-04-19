@@ -50,13 +50,23 @@ class MaxNorm_via_PGD():
             curparam[idx] = scalingVect[idx] * curparam[idx] 
 
 class Normalizer(): 
-    def __init__(self, LpNorm=2, tau = 1):
+    def __init__(self, LpNorm=2, tau = 1, tmd=False):
         self.LpNorm = LpNorm
         self.tau = tau
+        self.tmd = tmd
   
     def apply_on(self, model): #this method applies tau-normalization on the classifier layer
-
-        for curLayer in [model.encoder.fc.weight]: #change to last layer: Done
+        print("TMD:", self.tmd)
+        
+        if self.tmd == True:
+            layers = [model.encoder.fc.weight,
+                      model.tmd_layer.pi_list[0].weight,
+                 model.tmd_layer.pi_list[2].weight,
+                 model.tmd_layer.proj_list[0].weight]
+        else:
+            layers = [model.encoder.fc.weight]
+            
+        for curLayer in layers: #change to last layer: Done
             curparam = curLayer.data
 
             curparam_vec = curparam.reshape((curparam.shape[0], -1))
